@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ShoppingCart.WebApi
@@ -7,7 +8,7 @@ namespace ShoppingCart.WebApi
     {
         private readonly List<CartItem> _items = new List<CartItem>();
 
-        public int Id { get; }
+        public Guid Id { get; set; }
 
         public IReadOnlyCollection<CartItem> Items => _items;
 
@@ -28,6 +29,18 @@ namespace ShoppingCart.WebApi
         {
             var newItem = new CartItem(productId, quantity);
             _items.Add(newItem);
+        }
+
+        public void DeleteItemBy(int productId)
+        {
+            var item = _items.FirstOrDefault(m => m.ProductId == productId);
+            if (item != null)
+                _items.Remove(item);
+        }
+
+        public void ClearAllItems()
+        {
+            _items.Clear();
         }
     }
 }

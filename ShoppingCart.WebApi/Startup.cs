@@ -11,7 +11,9 @@ namespace ShoppingCart.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddTransient<ICartRepository, InMemoryCartRepository>();
+            services.AddSingleton<ICartRepository, InMemoryCartRepository>();
+            services.AddSingleton<ICartIdGenerator, CartIdGenerator>();
+            services.AddTransient<CartService>();
 
             services.AddSwaggerDocument();
         }

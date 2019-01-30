@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
@@ -19,14 +18,20 @@ namespace ShoppingCart.WebApi.Tests.Integration
         }
 
         [Fact]
-        public async Task Gets_cart()
+        public async Task Creates_new_cart_and_returns_cart_id()
         {
             var client = _fixture.CreateClient();
             var cartId = Guid.NewGuid();
-            var response = await client.GetAsync($"/api/cart/{cartId}");
+            var response = await client.PostAsJsonAsync($"/api/cart/{cartId}",
+                new AddItemData()
+                {
+                    ProductId = 7
+                });
 
             response.EnsureSuccessStatusCode();
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
+            var content = await response.Content.ReadAsStringAsync();
+            content.ShouldBe("asd");
         }
     }
 }
