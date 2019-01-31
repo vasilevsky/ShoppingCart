@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("ShoppingCart.WebApi.Tests.Integration")]
 
 namespace ShoppingCart.WebApi
 {

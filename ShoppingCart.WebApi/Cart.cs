@@ -8,7 +8,7 @@ namespace ShoppingCart.WebApi
     {
         private readonly List<CartItem> _items = new List<CartItem>();
 
-        public Guid Id { get; set; }
+        public Guid Id { get; }
 
         public IReadOnlyCollection<CartItem> Items => _items;
 

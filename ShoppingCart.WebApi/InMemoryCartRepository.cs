@@ -35,7 +35,7 @@ namespace ShoppingCart.WebApi
         }
     }
 
-    internal interface ICartIdGenerator
+    public interface ICartIdGenerator
     {
         Guid NewId();
     }

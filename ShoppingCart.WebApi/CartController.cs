@@ -33,14 +33,26 @@ namespace ShoppingCart.WebApi
 
         [HttpPost("{cartId:Guid}")]
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddToCart(Guid? cartId, [FromBody]AddItemData itemData)
+        public async Task<IActionResult> AddToCart(Guid cartId, [FromBody]AddItemData itemData)
         {
             if (!ModelState.IsValid || cartId == null)
-                return BadRequest("Cart ID or Item data is invalid");
+                return BadRequest("Item data is invalid");
 
-            var id = _cartService.CreateOrAddtoExisting(cartId.Value, itemData);
+            var id = _cartService.AddItem(cartId, itemData);
 
             return Ok(id);
+        }
+
+        [HttpPost()]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
+        public async Task<IActionResult> CreateCart([FromBody]AddItemData itemData)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Item data is invalid");
+
+            var id = _cartService.CreateCart(itemData);
+
+            return CreatedAtAction("api/cart", id);
         }
 
         [HttpDelete("{cartId:Guid}")]
@@ -70,67 +82,5 @@ namespace ShoppingCart.WebApi
 
             return Ok();
         }
-    }
-    
-    public interface ICartFactory
-    {
-        Cart GetOrCreate(Guid cartId);
-    }
-
-    public class CartService
-    {
-        private readonly ICartRepository _cartRepository;
-
-        public CartService(ICartRepository cartRepository)
-        {
-            _cartRepository = cartRepository;
-        }
-
-        public Either<Guid, Failure> CreateOrAddtoExisting(Guid cartId, AddItemData itemData)
-        {
-            var cart = _cartRepository.GetCart(cartId);
-            if (cart == null)
-            {
-                cart = new Cart();
-                _cartRepository.Add(cart);
-            }
-
-            cart.Add(itemData.ProductId);
-            _cartRepository.Save(cart);
-
-            return cartId;
-        }
-    }
-
-    public class Either<TUnit, TFailure>
-        where TFailure : Failure
-    {
-        public TUnit Unit { get; }
-
-        public TFailure Failure { get; }
-
-        public Either(TFailure failure)
-        {
-            Failure = failure;
-        }
-
-        public Either(TUnit result)
-        {
-            Unit = result;
-        }
-
-        public static implicit operator Either<TUnit, TFailure>(TUnit result)
-        {
-            return new Either<TUnit, TFailure>(result);
-        }
-
-        public static implicit operator Either<TUnit, TFailure>(TFailure failure)
-        {
-            return new Either<TUnit, TFailure>(failure);
-        }
-    }
-
-    public abstract class Failure
-    {
     }
 }
