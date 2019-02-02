@@ -45,7 +45,8 @@ namespace ShoppingCart.WebApi.Tests.Integration
             response.EnsureSuccessStatusCode();
             response.StatusCode.ShouldBe(HttpStatusCode.Created);
             var content = await response.Content.ReadAsStringAsync();
-            content.ShouldBe(newCartId.ToString());
+            content.ShouldNotBeNull();
+            content.Trim('"').ShouldBe(newCartId.ToString());
         }
 
         [Fact]

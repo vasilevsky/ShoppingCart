@@ -52,7 +52,7 @@ namespace ShoppingCart.WebApi
 
             var id = _cartService.CreateCart(itemData);
 
-            return CreatedAtAction("api/cart", id);
+            return Created("api/card", id);
         }
 
         [HttpDelete("{cartId:Guid}")]
