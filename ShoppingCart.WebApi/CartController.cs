@@ -21,7 +21,7 @@ namespace ShoppingCart.WebApi
         [HttpGet("{cartId:Guid}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCart(Guid? cartId)
+        public async Task<IActionResult> GetCart([FromRoute]Guid? cartId)
         {
             if (cartId == null)
                 return BadRequest("No cart id specified");
@@ -33,7 +33,7 @@ namespace ShoppingCart.WebApi
 
         [HttpPost("{cartId:Guid}")]
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddToCart(Guid cartId, [FromBody]AddItemData itemData)
+        public async Task<IActionResult> AddToCart([FromRoute]Guid cartId, [FromBody]AddItemData itemData)
         {
             if (!ModelState.IsValid || cartId == null)
                 return BadRequest("Item data is invalid");
@@ -58,7 +58,7 @@ namespace ShoppingCart.WebApi
         [HttpDelete("{cartId:Guid}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ClearCart(Guid? cartId)
+        public async Task<IActionResult> ClearCart([FromRoute]Guid? cartId)
         {
             if (cartId == null)
                 return BadRequest("Item data is invalid");

@@ -13,6 +13,7 @@ namespace ShoppingCart.WebApi
             services.AddMvc();
             services.AddSingleton<ICartRepository, InMemoryCartRepository>();
             services.AddSingleton<ICartIdGenerator, CartIdGenerator>();
+            services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddTransient<CartService>();
 
             services.AddSwaggerDocument();
@@ -21,10 +22,13 @@ namespace ShoppingCart.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseCustomAuthenticationMiddleware();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseMvc();
             app.UseStaticFiles();
             app.UseSwagger();

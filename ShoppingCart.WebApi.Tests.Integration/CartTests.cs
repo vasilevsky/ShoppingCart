@@ -9,6 +9,7 @@ using System.Linq;
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.TestHost;
+using System.Net.Http.Headers;
 
 namespace ShoppingCart.WebApi.Tests.Integration
 {
@@ -30,12 +31,25 @@ namespace ShoppingCart.WebApi.Tests.Integration
         }
 
         [Fact]
+        public async Task Rejects_unauthorized()
+        {
+            var newCartId = Guid.NewGuid();
+            mock.Setup(m => m.NewId()).Returns(newCartId);
+
+            var client = _fixture.CreateClient();
+            var response = await client.GetAsync($"/api/cart");
+
+            response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
         public async Task Creates_new_cart_with_item_and_returns_cart_id()
         {
             var newCartId = Guid.NewGuid();
             mock.Setup(m => m.NewId()).Returns(newCartId);
 
             var client = _fixture.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", "Chuck Norris");
             var response = await client.PostAsJsonAsync($"/api/cart",
                 new AddItemData()
                 {
@@ -55,6 +69,7 @@ namespace ShoppingCart.WebApi.Tests.Integration
             var cartId = Guid.NewGuid();
 
             var client = _fixture.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", "Chuck Norris");
             var response = await client.PostAsJsonAsync($"/api/cart/{cartId}",
                 new AddItemData()
                 {
