@@ -25,12 +25,34 @@ namespace ShoppingCart.WebApi
             return cartId;
         }
 
-        internal Guid CreateCart(AddItemData itemData)
+        public Either<Guid, Failure> CreateCart(AddItemData itemData)
         {
             var cart = new Cart();
             cart.Add(itemData.ProductId, itemData.Quantity);
 
             return _cartRepository.Add(cart);
+        }
+
+        public Either<Guid, Failure> ClearCart(Guid cartId)
+        {
+            var cart = _cartRepository.GetCart(cartId);
+            if (cart == null)
+                return new NotFound();
+
+            cart.ClearAllItems();
+
+            return cartId;
+        }
+
+        public Either<Guid, Failure> DeleteCartItem(Guid cartId, int productId)
+        {
+            var cart = _cartRepository.GetCart(cartId);
+            if (cart == null)
+                return new NotFound();
+
+            cart.DeleteItemBy(productId);
+
+            return cartId;
         }
     }
 

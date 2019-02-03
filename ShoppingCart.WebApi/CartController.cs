@@ -9,17 +9,18 @@ namespace ShoppingCart.WebApi
     public class CartController : ControllerBase
     {
         private readonly ICartRepository _cartRepository;
-        private readonly CartService _cartService;
+        private readonly CartService cartService;
 
         public CartController(ICartRepository cartRepository, CartService cartService)
         {
             _cartRepository = cartRepository;
-            _cartService = cartService;
+            this.cartService = cartService;
         }
 
 
         [HttpGet("{cartId:Guid}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCart([FromRoute]Guid? cartId)
         {
@@ -32,55 +33,77 @@ namespace ShoppingCart.WebApi
         }
 
         [HttpPost("{cartId:Guid}")]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddToCart([FromRoute]Guid cartId, [FromBody]AddItemData itemData)
         {
             if (!ModelState.IsValid || cartId == null)
                 return BadRequest("Item data is invalid");
 
-            var id = _cartService.AddItem(cartId, itemData);
+            var result = cartService.AddItem(cartId, itemData);
 
-            return Ok(id);
+            return HandleResult(result);
         }
 
         [HttpPost()]
-        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CreateCart([FromBody]AddItemData itemData)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Item data is invalid");
 
-            var id = _cartService.CreateCart(itemData);
+            var result = cartService.CreateCart(itemData);
 
-            return Created("api/card", id);
+            return HandleResult(result);
         }
 
-        [HttpDelete("{cartId:Guid}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [HttpDelete("{cartId:Guid}/items")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ClearCart([FromRoute]Guid? cartId)
         {
             if (cartId == null)
-                return BadRequest("Item data is invalid");
+                return BadRequest("No cart id specified");
 
-            var cart = _cartRepository.GetCart(cartId.Value);
-            cart.ClearAllItems();
+            var result = cartService.ClearCart(cartId.Value);
 
-            return Ok();
+            return HandleResult(result, NoContent());
         }
 
-        [HttpDelete("{cartId:Guid}/items/{productId:int}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [HttpDelete("{cartId:Guid}/item/{productId:int}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteItem(Guid? cartId, int? productId)
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> DeleteItem([FromRoute]Guid? cartId, [FromRoute]int? productId)
         {
             if (cartId == null || productId == null)
                 return BadRequest();
 
-            var cart = _cartRepository.GetCart(cartId.Value);
-            cart.DeleteItemBy(productId.Value);
+            var result = cartService.DeleteCartItem(cartId.Value, productId.Value);
 
-            return Ok();
+            return HandleResult(result, NoContent());
+        }
+
+        private IActionResult HandleResult<TUnit, TFailure>(Either<TUnit, TFailure> result, IActionResult onSuccess = null)
+            where TFailure : Failure
+        {
+            return result.Failure == null
+                ? onSuccess ?? Ok(result.Unit)
+                : HandleFailure(result.Failure);
+        }
+
+        private IActionResult HandleFailure(Failure failure)
+        {
+            switch (failure)
+            {
+                case NotFound notFound: return NotFound();
+                default: throw new Exception("Not supported Failure");
+            }
         }
     }
 }
