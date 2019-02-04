@@ -21,7 +21,7 @@ namespace ShoppingCart.WebApi
             }
             else
             {
-                existingItem.IncreaseQuantity(quantity);
+                existingItem.SetQuantity(quantity);
             }
         }
 
@@ -41,6 +41,13 @@ namespace ShoppingCart.WebApi
         public void ClearAllItems()
         {
             _items.Clear();
+        }
+
+        public void UpdateItem(int productId, int quantity)
+        {
+            var item = _items.FirstOrDefault(m => m.ProductId == productId);
+            if (item != null)
+                item.SetQuantity(quantity);
         }
     }
 }

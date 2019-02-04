@@ -61,7 +61,7 @@ namespace ShoppingCart.WebApi.Client
             this.httpClient = httpClient;
         }
 
-        public async Task<Guid> GetCart(Guid cartId)
+        public async Task<CartData> GetCart(Guid cartId)
         {
             var request = CreateHttpRequest(HttpMethod.Get, $"/cart/{cartId}");
 
@@ -69,7 +69,7 @@ namespace ShoppingCart.WebApi.Client
             if (response.StatusCode != HttpStatusCode.OK)
                 await HandleResponse(response).ConfigureAwait(false);
 
-            return await ReadContentAsGuid(response.Content).ConfigureAwait(false);
+            return await ReadContentAs<CartData>(response.Content).ConfigureAwait(false);
         }
 
         public async Task<Guid> CreateCart(ItemData itemData)
@@ -80,7 +80,7 @@ namespace ShoppingCart.WebApi.Client
             if (response.StatusCode != HttpStatusCode.OK)
                 await HandleResponse(response).ConfigureAwait(false);
 
-            return await ReadContentAsGuid(response.Content).ConfigureAwait(false);
+            return await ReadContentAs<Guid>(response.Content).ConfigureAwait(false);
         }
 
         public async Task AddToCart(Guid cartId, ItemData itemData)
@@ -95,6 +95,15 @@ namespace ShoppingCart.WebApi.Client
         public async Task ClearCart(Guid cartId)
         {
             var request = CreateHttpRequest(HttpMethod.Delete, $"/cart/{cartId}/items");
+
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.NoContent)
+                await HandleResponse(response).ConfigureAwait(false);
+        }
+
+        public async Task UpdateQuantity(Guid cartId, int productId, int increment)
+        {
+            var request = CreateHttpRequest(new HttpMethod("Patch"), $"/cart/{cartId}/items");
 
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.NoContent)
@@ -157,16 +166,10 @@ namespace ShoppingCart.WebApi.Client
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("ApiKey", configuration.ApiKey);
         }
 
-        private async Task<Guid> ReadContentAsGuid(HttpContent httpContent)
+        private async Task<T> ReadContentAs<T>(HttpContent httpContent)
         {
             var content = await httpContent.ReadAsStringAsync();
-            content = content.Trim('"');
-            if (Guid.TryParse(content, out Guid id))
-            {
-                return id;
-            }
-
-            throw new FormatException("Could not read Guid");
+            return JsonConvert.DeserializeObject<T>(content);
         }
     }
     public class CartClientException : Exception

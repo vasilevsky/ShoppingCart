@@ -9,7 +9,6 @@ using System.Linq;
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.TestHost;
-using System.Net.Http.Headers;
 using ShoppingCart.WebApi.Client;
 
 namespace ShoppingCart.WebApi.Tests.Integration
@@ -46,24 +45,18 @@ namespace ShoppingCart.WebApi.Tests.Integration
             await client.AddToCart(cartId, new Client.ItemData() { ProductId = 8, Quantity = 2 });
 
             await client.DeleteItems(cartId, 7);
+
+            await client.AddToCart(cartId, new Client.ItemData() { ProductId = 8, Quantity = 10 });
+
+            var cart = await client.GetCart(cartId);
+            cart.Items.Count().ShouldBe(1);
+            cart.Items[0].ProductId = 8;
+            cart.Items[0].Quantity = 10;
+
+            await client.ClearCart(cartId);
+            cart = await client.GetCart(cartId);
+            cart.Items.ShouldBeEmpty();
         }
-
-        [Fact]
-        public async Task Creates_cart_andg_manipulates_items()
-        {
-            var client = CartClient(fixture.CreateClient());
-
-            var newCartId = Guid.NewGuid();
-            mock.Setup(m => m.NewId()).Returns(newCartId);
-
-            var cartId = await client.CreateCart(new Client.ItemData() { ProductId = 7, Quantity = 1 });
-
-            cartId.ShouldBe(newCartId);
-
-            await client.AddToCart(cartId, new Client.ItemData() { ProductId = 8, Quantity = 2 });
-            await client.DeleteItems(cartId, 7);
-        }
-
 
         private CartClient CartClient(HttpClient httpClient)
             => new CartClient(

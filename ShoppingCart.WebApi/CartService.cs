@@ -11,7 +11,7 @@ namespace ShoppingCart.WebApi
             _cartRepository = cartRepository;
         }
 
-        public Either<Guid, Failure> AddItem(Guid cartId, AddItemData itemData)
+        public Either<Guid, Failure> AddItem(Guid cartId, ItemData itemData)
         {
             var cart = _cartRepository.GetCart(cartId);
             if (cart == null)
@@ -25,7 +25,7 @@ namespace ShoppingCart.WebApi
             return cartId;
         }
 
-        public Either<Guid, Failure> CreateCart(AddItemData itemData)
+        public Either<Guid, Failure> CreateCart(ItemData itemData)
         {
             var cart = new Cart();
             cart.Add(itemData.ProductId, itemData.Quantity);
@@ -51,6 +51,17 @@ namespace ShoppingCart.WebApi
                 return new NotFound();
 
             cart.DeleteItemBy(productId);
+
+            return cartId;
+        }
+
+        public Either<Guid, Failure> UpdateItem(Guid cartId, int productId, int quantity)
+        {
+            var cart = _cartRepository.GetCart(cartId);
+            if (cart == null)
+                return new NotFound();
+
+            cart.UpdateItem(productId, quantity);
 
             return cartId;
         }

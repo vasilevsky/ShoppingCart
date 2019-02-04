@@ -1,4 +1,6 @@
-﻿namespace ShoppingCart.WebApi
+﻿using System;
+
+namespace ShoppingCart.WebApi
 {
     public class CartItem
     {
@@ -12,9 +14,12 @@
 
         public int Quantity { get; private set; }
 
-        public void IncreaseQuantity(int quantity)
+        public void SetQuantity(int quantity)
         {
-            Quantity += quantity;
+            if (quantity < 1)
+                throw new InvalidOperationException("Quantity cannot be negative");
+
+            Quantity = quantity;
         }
     }
 }

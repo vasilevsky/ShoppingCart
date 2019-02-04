@@ -36,7 +36,7 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddToCart([FromRoute]Guid cartId, [FromBody]AddItemData itemData)
+        public async Task<IActionResult> AddToCart([FromRoute]Guid cartId, [FromBody]ItemData itemData)
         {
             if (!ModelState.IsValid || cartId == null)
                 return BadRequest("Item data is invalid");
@@ -46,11 +46,27 @@ namespace ShoppingCart.WebApi
             return HandleResult(result, NoContent());
         }
 
+        [HttpPatch("{cartId:Guid}/items")]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.NoContent)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateQuantity(
+            [FromRoute]Guid cartId,
+            [FromBody]ItemData itemData)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Item data is invalid");
+
+            var result = cartService.UpdateItem(cartId, itemData.ProductId, itemData.Quantity);
+
+            return HandleResult(result, NoContent());
+        }
+
         [HttpPost()]
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateCart([FromBody]AddItemData itemData)
+        public async Task<IActionResult> CreateCart([FromBody]ItemData itemData)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Item data is invalid");

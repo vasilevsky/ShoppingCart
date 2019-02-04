@@ -1,6 +1,6 @@
 ﻿namespace ShoppingCart.WebApi
 {
-    public class AddItemData
+    public class ItemData
     {
         public int ProductId { get; set; }
 
