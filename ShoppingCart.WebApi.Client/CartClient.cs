@@ -8,35 +8,45 @@ using System.Threading.Tasks;
 
 namespace ShoppingCart.WebApi.Client
 {
-    public class AddItemData
+    public class ItemData
     {
         public int ProductId { get; set; }
 
         public int Quantity { get; set; }
+    }
 
+    public class CartData
+    {
+        public Guid Id { get; set; }
+
+        public ItemData[] Items { get; set; }
     }
 
     public class CartClientConfiguration
     {
-        public Uri EndpointAddress { get; private set; }
+        public string EndpointAddress { get; private set; }
 
         public string ApiKey { get; private set; }
 
-        public void SetApiKey(string apiKey)
+        public CartClientConfiguration SetApiKey(string apiKey)
         {
             if (apiKey == null)
                 throw new ArgumentNullException(nameof(apiKey));
 
             ApiKey = apiKey;
+
+            return this;
         }
 
-        public void SetEndpointAddress(string endpointAddress)
+        public CartClientConfiguration SetEndpointAddress(string endpointAddress)
         {
             if (endpointAddress == null)
                 throw new ArgumentNullException(nameof(endpointAddress));
 
             var address = endpointAddress.TrimEnd('/');
-            EndpointAddress = new Uri(address);
+            EndpointAddress = address;
+
+            return this;
         }
     }
 
@@ -51,9 +61,9 @@ namespace ShoppingCart.WebApi.Client
             this.httpClient = httpClient;
         }
 
-        public async Task<Guid> CreateCart(AddItemData itemData)
+        public async Task<Guid> GetCart(Guid cartId)
         {
-            var request = CreateHttpRequest(HttpMethod.Post, "/api/cart", Serialize(itemData));
+            var request = CreateHttpRequest(HttpMethod.Get, $"/cart/{cartId}");
 
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.OK)
@@ -62,9 +72,20 @@ namespace ShoppingCart.WebApi.Client
             return await ReadContentAsGuid(response.Content).ConfigureAwait(false);
         }
 
-        public async Task AddToCart(Guid cartId, AddItemData itemData)
+        public async Task<Guid> CreateCart(ItemData itemData)
         {
-            var request = CreateHttpRequest(HttpMethod.Post, $"/api/cart/{cartId}", Serialize(itemData));
+            var request = CreateHttpRequest(HttpMethod.Post, "/cart", Serialize(itemData));
+
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.OK)
+                await HandleResponse(response).ConfigureAwait(false);
+
+            return await ReadContentAsGuid(response.Content).ConfigureAwait(false);
+        }
+
+        public async Task AddToCart(Guid cartId, ItemData itemData)
+        {
+            var request = CreateHttpRequest(HttpMethod.Post, $"/cart/{cartId}", Serialize(itemData));
 
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.NoContent)
@@ -73,16 +94,16 @@ namespace ShoppingCart.WebApi.Client
 
         public async Task ClearCart(Guid cartId)
         {
-            var request = CreateHttpRequest(HttpMethod.Post, $"/api/cart/{cartId}/items");
+            var request = CreateHttpRequest(HttpMethod.Delete, $"/cart/{cartId}/items");
 
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.NoContent)
                 await HandleResponse(response).ConfigureAwait(false);
         }
 
-        public async Task DeleteItems(Guid cartId,int productId)
+        public async Task DeleteItems(Guid cartId, int productId)
         {
-            var request = CreateHttpRequest(HttpMethod.Post, $"/api/cart/{cartId}/item/{productId}");
+            var request = CreateHttpRequest(HttpMethod.Delete, $"/cart/{cartId}/items/{productId}");
 
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.NoContent)

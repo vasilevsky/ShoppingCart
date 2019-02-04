@@ -57,7 +57,7 @@ namespace ShoppingCart.WebApi.Tests.Integration
                 });
 
             response.EnsureSuccessStatusCode();
-            response.StatusCode.ShouldBe(HttpStatusCode.Created);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
             var content = await response.Content.ReadAsStringAsync();
             content.ShouldNotBeNull();
             content.Trim('"').ShouldBe(newCartId.ToString());
@@ -77,7 +77,7 @@ namespace ShoppingCart.WebApi.Tests.Integration
                 });
 
             response.EnsureSuccessStatusCode();
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+            response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         }
     }
 }

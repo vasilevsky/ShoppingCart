@@ -43,7 +43,7 @@ namespace ShoppingCart.WebApi
 
             var result = cartService.AddItem(cartId, itemData);
 
-            return HandleResult(result);
+            return HandleResult(result, NoContent());
         }
 
         [HttpPost()]
@@ -74,7 +74,7 @@ namespace ShoppingCart.WebApi
             return HandleResult(result, NoContent());
         }
 
-        [HttpDelete("{cartId:Guid}/item/{productId:int}")]
+        [HttpDelete("{cartId:Guid}/items/{productId:int}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
