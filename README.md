@@ -9,7 +9,7 @@ Provides HTTP client which can be used to access Shopping Cart API.
 * `CartClient` - the facade to the API.
 * `CartClientConfiguration`:
     - `Endpoint` - URL to the API, e.g. http://localhost:58519/api
-    - `ApiKey` - secret key to authorize use of API.
+    - `ApiKey` - secret key to authorize user of API.
 
 Shopping Cart Web API
 ========
