@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ShoppingCart.WebApi
@@ -8,12 +7,12 @@ namespace ShoppingCart.WebApi
     [Route("api/cart")]
     public class CartController : ControllerBase
     {
-        private readonly ICartRepository _cartRepository;
+        private readonly ICartRepository cartRepository;
         private readonly CartService cartService;
 
         public CartController(ICartRepository cartRepository, CartService cartService)
         {
-            _cartRepository = cartRepository;
+            this.cartRepository = cartRepository;
             this.cartService = cartService;
         }
 
@@ -22,12 +21,12 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCart([FromRoute]Guid? cartId)
+        public IActionResult GetCart([FromRoute]Guid? cartId)
         {
             if (cartId == null)
                 return BadRequest("No cart id specified");
 
-            var cart = _cartRepository.GetCart(cartId.Value);
+            var cart = cartRepository.GetCart(cartId.Value);
 
             return Ok(cart);
         }
@@ -36,9 +35,9 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddToCart([FromRoute]Guid cartId, [FromBody]ItemData itemData)
+        public IActionResult AddToCart([FromRoute]Guid cartId, [FromBody]ItemData itemData)
         {
-            if (!ModelState.IsValid || cartId == null)
+            if (!ModelState.IsValid)
                 return BadRequest("Item data is invalid");
 
             var result = cartService.AddItem(cartId, itemData);
@@ -50,7 +49,7 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateQuantity(
+        public IActionResult UpdateQuantity(
             [FromRoute]Guid cartId,
             [FromBody]ItemData itemData)
         {
@@ -66,7 +65,7 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateCart([FromBody]ItemData itemData)
+        public IActionResult CreateCart([FromBody]ItemData itemData)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Item data is invalid");
@@ -80,7 +79,7 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ClearCart([FromRoute]Guid? cartId)
+        public IActionResult ClearCart([FromRoute]Guid? cartId)
         {
             if (cartId == null)
                 return BadRequest("No cart id specified");
@@ -95,7 +94,7 @@ namespace ShoppingCart.WebApi
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> DeleteItem([FromRoute]Guid? cartId, [FromRoute]int? productId)
+        public IActionResult DeleteItem([FromRoute]Guid? cartId, [FromRoute]int? productId)
         {
             if (cartId == null || productId == null)
                 return BadRequest();

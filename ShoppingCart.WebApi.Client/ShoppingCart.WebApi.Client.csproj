@@ -44,6 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CartClient.cs" />
+    <Compile Include="CartClientConfiguration.cs" />
+    <Compile Include="CartClientException.cs" />
+    <Compile Include="CartData.cs" />
+    <Compile Include="ItemData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

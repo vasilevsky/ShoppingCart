@@ -1,55 +1,13 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace ShoppingCart.WebApi.Client
 {
-    public class ItemData
-    {
-        public int ProductId { get; set; }
-
-        public int Quantity { get; set; }
-    }
-
-    public class CartData
-    {
-        public Guid Id { get; set; }
-
-        public ItemData[] Items { get; set; }
-    }
-
-    public class CartClientConfiguration
-    {
-        public string EndpointAddress { get; private set; }
-
-        public string ApiKey { get; private set; }
-
-        public CartClientConfiguration SetApiKey(string apiKey)
-        {
-            if (apiKey == null)
-                throw new ArgumentNullException(nameof(apiKey));
-
-            ApiKey = apiKey;
-
-            return this;
-        }
-
-        public CartClientConfiguration SetEndpointAddress(string endpointAddress)
-        {
-            if (endpointAddress == null)
-                throw new ArgumentNullException(nameof(endpointAddress));
-
-            var address = endpointAddress.TrimEnd('/');
-            EndpointAddress = address;
-
-            return this;
-        }
-    }
-
     public class CartClient
     {
         private readonly CartClientConfiguration configuration;
@@ -170,24 +128,6 @@ namespace ShoppingCart.WebApi.Client
         {
             var content = await httpContent.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(content);
-        }
-    }
-    public class CartClientException : Exception
-    {
-        public HttpStatusCode StatusCode { get; private set; }
-
-        public string Response { get; private set; }
-
-        public CartClientException(string message, HttpStatusCode statusCode, string response)
-            : base(message + "\n\nStatus: " + statusCode + "\nResponse: \n" + response.Substring(0, response.Length >= 512 ? 512 : response.Length))
-        {
-            StatusCode = statusCode;
-            Response = response;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("HTTP Response: \n\n{0}\n\n{1}", Response, base.ToString());
         }
     }
 }
