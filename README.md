@@ -6,7 +6,7 @@ Shopping Cart Web API Client library
 ========
 Provides HTTP client which can be used to access Shopping Cart API.
 
-* `CartClient` - the facade to the API.
+* `CartClient` - HttpClient wrapper work with the API.
 * `CartClientConfiguration`:
     - `Endpoint` - URL to the API, e.g. http://localhost:58519/api
     - `ApiKey` - secret key to authorize user of API.
