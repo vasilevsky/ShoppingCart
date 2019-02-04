@@ -2,6 +2,9 @@
 
 namespace ShoppingCart.WebApi
 {
+    /// <summary>
+    /// Implemmnts application logic over cart and persists the state.
+    /// </summary>
     public class CartService
     {
         private readonly ICartRepository _cartRepository;
