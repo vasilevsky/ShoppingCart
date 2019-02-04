@@ -52,8 +52,8 @@ In order to use API `Authorization` header must be set to `ApiKey _your_api_key_
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 204 |  | string (guid) |
-| 400 |  |  |
-| 401 |  |  |
+| 400 | Invalid item data |  |
+| 401 | Unauthorized |  |
 
 ### ***PATCH*** /api/cart/{cartId}/items
 ---
